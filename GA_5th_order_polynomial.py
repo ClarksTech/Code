@@ -76,7 +76,7 @@ print(points)
 
 #example usage
 target = [25, 18, 31, -14, 7, -19]
-p_count = 100
+p_count = 5000
 i_length = 6
 i_min = -50
 i_max = 50
@@ -95,9 +95,10 @@ for i in range(generations):
         break
 
 for datum in fitness_history:
+    print(p)
     print(datum)
     print(target)
-    print(p)
+    
 
 
 plt.plot(fitness_history)

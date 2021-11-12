@@ -4,6 +4,8 @@ from random import randint, random
 from operator import add
 import matplotlib.pyplot as plt
 import functools
+import numpy as np
+import math
 
 
 #Create a member of the population
@@ -16,8 +18,11 @@ def population(count, length, min, max):
 
 #determine fitness of individual
 def fitness(individual, target):
-    sum = functools.reduce(add, individual, 0)
-    return abs(target-sum)
+    delta = np.subtract(target, individual)
+    delta2 = np.square(delta)
+    ave = np.average(delta2)
+    dfitness = math.sqrt(ave)
+    return dfitness
 
 #find average fitness of population
 def grade(pop, target):
@@ -61,22 +66,25 @@ def polynomial(a1, a2, a3, a4, a5, a6, x):
     y = a1*x^5 + a2*x^4 + a3*x^3 + a4*x^2 + a5*x + a6
     return [x,y]
 
-#example usage
-target = 550
-p_count = 100
-i_length = 6
-i_min = 0
-i_max = 100
-generations = 100
-
 #polynomial and random point generation
 points = []
-points_to_match = 10
+points_to_match = 1000
 for point in range(points_to_match):
     points.append(polynomial(25, 18, 31, -14, 7, -19, randint(-100, 100)))
 print(points)
 
+
+#example usage
+target = [25, 18, 31, -14, 7, -19]
+p_count = 100
+i_length = 6
+i_min = -50
+i_max = 50
+generations = 100
+
+
 p = population(p_count, i_length, i_min, i_max)
+print(p)
 fitness_history = [grade(p, target),]
 for i in range(generations):
     p = evolve(p, target)
@@ -88,11 +96,22 @@ for i in range(generations):
 
 for datum in fitness_history:
     print(datum)
+    print(target)
+    print(p)
+
 
 plt.plot(fitness_history)
 plt.show()
 
-print(points)
-x, y = zip(*points)
-plt.scatter(x,y)
-plt.show()
+#plot polynomial points to find
+#points = np.array(points)
+#print(points)
+#x = points[:,0]
+#y = points[:,1]
+#coefficients = np.polyfit(x, y, 6)
+#poly = np.poly1d(coefficients)
+#new_x = np.linspace(x[0], x[-1])
+#new_y = poly(new_x)
+#plt.plot(x,y, "o", new_x,new_y)
+#plt.xlim(-100, 100)
+#plt.show()

@@ -56,13 +56,15 @@ def evolve(pop, target, retain=0.2, random_select=0.05, mutate=0.01):
     parents.extend(children)
     return parents
 
-#example usage
+#default values
 target = 550
 p_count = 100
 i_length = 6
 i_min = 0
 i_max = 100
 generations = 100
+
+#Main Usage
 p = population(p_count, i_length, i_min, i_max)
 fitness_history = [grade(p, target),]
 for i in range(generations):

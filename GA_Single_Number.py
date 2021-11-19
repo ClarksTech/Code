@@ -163,7 +163,6 @@ def plot_swept_param(swept, swept_history):
     plt.ylabel('Average Iterations to find solution')
     plt.scatter(x,y)
     plt.plot(x, y_line, 'r')
-    #plt.scatter(x,run_time_history)
     plt.show()
     return
 
@@ -179,6 +178,11 @@ def plot_swept_param(swept, swept_history):
     #mutate=0.01
 
 #initialise global variable and get user input
+i_length = 6
+i_min = 0
+i_max = 100
+target = 550
+generations = 100
 runs_to_average = int(input("Enter number of runs to find average fitness from: "))
 show_generation_fitness_graph = input("Do you want Generational Fitness Graphs for every run? Y/N: ")
 show_average_fitness_variance_graph = input("Do you want to show fitness variance graphs? Y/N: ")
@@ -189,11 +193,6 @@ show_average_iterations_needed_graph = input("Do you want to show iterations var
 #run code for optimal solution (least number of iterations to converge on solution)
 if input("Least Iterations Solution? Y/N: ") == "Y":
 
-    target = 550
-    i_length = 6
-    i_min = 0
-    i_max = 100
-    generations = 100
     retain=0.15
     random_select=0.05
     mutate=0.03
@@ -216,11 +215,6 @@ if input("Sweep population? Y/N: ") == "Y":
 
     #set values for GA
     p_count_history = []
-    target = 550
-    i_length = 6
-    i_min = 0
-    i_max = 100
-    generations = 100
     retain=0.2
     random_select=0.05
     mutate=0.01
@@ -249,12 +243,7 @@ if input("Sweep Mutation probability? Y/N: ") == "Y":
 
     #set values for GA
     mutate_history = []
-    target = 550
     p_count = 600
-    i_length = 6
-    i_min = 0
-    i_max = 100
-    generations = 100
     retain=0.2
     random_select=0.05
 
@@ -282,12 +271,7 @@ if input("Sweep crossover probability? Y/N: ") == "Y":
 
     #set values for GA
     crossover_history = []
-    target = 550
     p_count = 600
-    i_length = 6
-    i_min = 0
-    i_max = 100
-    generations = 100
     random_select= 0.05
     mutate=0.03
 

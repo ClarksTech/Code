@@ -215,18 +215,17 @@ if input("Sweep population? Y/N: ") == "Y":
 
     #set values for GA
     p_count_history = []
+    average_iteration_history = []
+    run_time_history = []
     retain=0.2
     random_select=0.05
     mutate=0.01
 
-    runs_fitness_history = []
-    run_time_history = []
-    iterations_needed_history = []
-    average_iteration_history = []
-
     #sweep population
     for p_count in range(100, 1100, 100):
         
+        iterations_needed_history = []
+        runs_fitness_history = []
         sum_of_runs = 0
         performance = 0
         iterations_needed = 0
@@ -243,18 +242,17 @@ if input("Sweep Mutation probability? Y/N: ") == "Y":
 
     #set values for GA
     mutate_history = []
+    average_iteration_history = []
+    run_time_history = []
     p_count = 600
     retain=0.2
     random_select=0.05
 
-    runs_fitness_history = []
-    run_time_history = []
-    iterations_needed_history = []
-    average_iteration_history = []
-
     #sweep mutation probability
     for mutate in np.arange(0.01, 0.11, 0.01):
         
+        runs_fitness_history = []
+        iterations_needed_history = []
         sum_of_runs = 0
         performance = 0
         iterations_needed = 0
@@ -271,18 +269,17 @@ if input("Sweep crossover probability? Y/N: ") == "Y":
 
     #set values for GA
     crossover_history = []
+    average_iteration_history = []
+    run_time_history = []
     p_count = 600
     random_select= 0.05
     mutate=0.03
 
-    runs_fitness_history = []
-    run_time_history = []
-    iterations_needed_history = []
-    average_iteration_history = []
-
     #sweep crossover probability
     for retain in np.arange(0.1, 0.4, 0.025):
         
+        runs_fitness_history = []
+        iterations_needed_history = []
         sum_of_runs = 0
         performance = 0
         iterations_needed = 0

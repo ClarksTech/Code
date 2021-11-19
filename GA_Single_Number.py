@@ -80,18 +80,19 @@ def sweep_parameter(p_count, retain, random_select, mutate, sum_of_iterations, i
                 iterations_needed = i
                 performance = performance + 1
                 break
-            #track number of iterations (generations) needed to find suitable solution - otherwise set to max generations
+        
+        #update current best solution
+        for indiv in p:
+            if fitness(indiv,target) <= fittest:
+                solution = functools.reduce(add, indiv, 0)
+        
+        #track number of iterations (generations) needed to find suitable solution - otherwise set to max generations
         if iterations_needed == 0:
             iterations_needed = generations 
 
         #save run time
         run_time = time.time()-start_time
         run_time_history.append(run_time)
-
-        #update current best solution
-        for indiv in p:
-            if fitness(indiv,target) <= fittest:
-                solution = functools.reduce(add, indiv, 0)
 
         #get sum of iterations for average, store in array
         sum_of_iterations = sum_of_iterations + iterations_needed

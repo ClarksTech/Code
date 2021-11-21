@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import functools
 import time
 import numpy as np
+import math
 
 #Create a member of the population
 def individual(length, min, max):
@@ -17,8 +18,11 @@ def population(count, length, min, max):
 
 #determine fitness of individual
 def fitness(individual, target):
-    sum = functools.reduce(add, individual, 0)
-    return abs(target-sum)
+    delta = np.subtract(target, individual)
+    delta2 = np.square(delta)
+    ave = np.average(delta2)
+    dfitness = math.sqrt(ave)
+    return dfitness
 
 #find average fitness of population
 def grade(pop, target):
@@ -30,7 +34,7 @@ def evolve(pop, target, retain, random_select, mutate):
     graded = [(fitness(x, target), x) for x in pop]
     graded = [x[1] for x in sorted(graded)]
     retain_length = int(len(graded)*retain)
-    parents = graded[:retain_length]
+    parents = graded[2:(retain_length-2)] # 2 top kept out of mutations and crossover elitism
     #randomly add other individuals to promote genetic diversity
     for individual in graded[retain_length:]:
         if random_select > random():
@@ -40,7 +44,7 @@ def evolve(pop, target, retain, random_select, mutate):
         if mutate > random():
             pos_to_mutate = randint(0, len(individual)-1)
             #mutation is non-ideal as restricts range of possible values
-            individual[pos_to_mutate] = randint(min(individual), max(individual))
+            individual[pos_to_mutate] = randint(-50, 50) #in range
     #crossover parents to create children
     parents_length = len(parents)
     desired_length = len(pop)-parents_length
@@ -54,6 +58,8 @@ def evolve(pop, target, retain, random_select, mutate):
             half = len(male)//2
             child = male[:half]+female[half:]
             children.append(child)
+    parents.append(graded[0])#add back in 2 most elite
+    parents.append(graded[1])#add back in 2
     parents.extend(children)
     return parents
 
@@ -75,20 +81,23 @@ def sweep_parameter(p_count, retain, random_select, mutate):
         for i in range(generations):
             p = evolve(p, target, retain, random_select, mutate)
             fitness_history.append(grade(p, target))
-            #stop the algorithm if suitable solution has been found
+            #stop the algorithm if suitable solution has been found (below 0.5% variance deemed acceptable)
             suitable_solution = 0
+            #if grade(p, target) < suitable_solution:
+                #iterations_needed = i
+                #performance = performance + 1
+                #break
             for indv in p:
                 if fitness(indv,target) == suitable_solution:
                     iterations_needed = i
                     solution_found = 1
-                    solution = functools.reduce(add, indv, 0)
+                    solution = indv
                 else:
                     solution_found = 0
 
             if solution_found == 1:
                 performance = performance + 1
-                
-                break  
+                break        
         
         #was solution found
         if solution_found == 1:
@@ -122,6 +131,7 @@ def sweep_parameter(p_count, retain, random_select, mutate):
 
     #display the average fitness of all the runs
     average_fitness = sum_of_runs/runs_to_average
+    average_fitness_history.append(average_fitness)
     print("Average Fitness for ", runs_to_average, " runs was: ", average_fitness)
 
     #display performance of all runs as percentage 
@@ -148,15 +158,15 @@ def sweep_parameter(p_count, retain, random_select, mutate):
 #function to plot affects of sweep on number of itterations to find solution
 def plot_swept_param(swept, swept_history):
     x = np.array(swept_history)
-    y = np.array(average_iteration_history)
+    y = np.array(average_fitness_history)
     theta = np.polyfit(x, y, 3)
     print(f'The Parameters of the curve: {theta}')
     y_line = theta[3] + theta[2] * pow(x, 1) + theta[1]  * pow(x, 2) +theta[0] * pow(x,3)
 
-    title = "Affect of " + swept + " on how quickly solution is found"
+    title = "Affect of " + swept + " on average fitness"
     plt.title(title)
     plt.xlabel(swept)
-    plt.ylabel('Average Iterations to find solution')
+    plt.ylabel('Average fitness')
     plt.scatter(x,y)
     plt.plot(x, y_line, 'r')
     plt.show()
@@ -174,24 +184,26 @@ def plot_swept_param(swept, swept_history):
     #mutate=0.01
 
 #initialise global variable and get user input
+target = [25, 18, 31, -14, 7, -19]
 i_length = 6
-i_min = 0
-i_max = 100
-target = 550
+i_min = -50
+i_max = 50
 generations = 100
 runs_to_average = int(input("Enter number of runs to find average fitness from: "))
 show_generation_fitness_graph = input("Do you want Generational Fitness Graphs for every run? Y/N: ")
 show_average_fitness_variance_graph = input("Do you want to show fitness variance graphs? Y/N: ")
 show_average_iterations_needed_graph = input("Do you want to show iterations variance graphs? Y/N: ")
 
+
 #run code for optimal solution (least number of iterations to converge on solution)
 if input("Least Iterations Solution? Y/N: ") == "Y":
 
-    retain=0.15
+    retain=0.2
     random_select=0.05
     mutate=0.03
-    p_count = 600
+    p_count = 5000
     average_iteration_history = []
+    average_fitness_history = []
 
     sweep_parameter(p_count, retain, random_select, mutate)
 
@@ -201,12 +213,13 @@ if input("Sweep population? Y/N: ") == "Y":
     #set values for GA
     p_count_history = []
     average_iteration_history = []
-    retain=0.2
+    average_fitness_history = []
+    retain=0.4
     random_select=0.05
     mutate=0.01
 
     #sweep population
-    for p_count in range(100, 1100, 100):
+    for p_count in range(1000, 7000, 1000):
         p_count_history.append(p_count)
 
         sweep_parameter(p_count, retain, random_select, mutate)
@@ -220,9 +233,10 @@ if input("Sweep Mutation probability? Y/N: ") == "Y":
     #set values for GA
     mutate_history = []
     average_iteration_history = []
-    p_count = 600
+    average_fitness_history = []
     retain=0.2
     random_select=0.05
+    p_count = 5000
 
     #sweep mutation probability
     for mutate in np.arange(0.01, 0.11, 0.01):
@@ -239,9 +253,10 @@ if input("Sweep crossover probability? Y/N: ") == "Y":
     #set values for GA
     crossover_history = []
     average_iteration_history = []
-    p_count = 600
-    random_select= 0.05
-    mutate=0.03
+    average_fitness_history = []
+    random_select=0.05
+    mutate=0.01
+    p_count = 5000
 
     #sweep crossover probability
     for retain in np.arange(0.1, 0.4, 0.025):

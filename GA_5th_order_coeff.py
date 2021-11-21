@@ -34,7 +34,12 @@ def evolve(pop, target, retain, random_select, mutate):
     graded = [(fitness(x, target), x) for x in pop]
     graded = [x[1] for x in sorted(graded)]
     retain_length = int(len(graded)*retain)
-    parents = graded[2:(retain_length-2)] # 2 top kept out of mutations and crossover elitism
+    #decide if using elitism or not
+    if eletism_status == "Y":
+        parents = graded[2:(retain_length-2)]   # 2 top kept out of mutations and crossover elitism
+    else:
+        parents = graded[:(retain_length)]      # no eletism
+    
     #randomly add other individuals to promote genetic diversity
     for individual in graded[retain_length:]:
         if random_select > random():
@@ -58,8 +63,10 @@ def evolve(pop, target, retain, random_select, mutate):
             half = len(male)//2
             child = male[:half]+female[half:]
             children.append(child)
-    parents.append(graded[0])#add back in 2 most elite
-    parents.append(graded[1])#add back in 2
+    #if eleitism used add back in most elite
+    if eletism_status == "Y":        
+        parents.append(graded[0])#add back in most elite
+        parents.append(graded[1])#add back in 2nd most elite
     parents.extend(children)
     return parents
 
@@ -81,17 +88,29 @@ def sweep_parameter(p_count, retain, random_select, mutate):
         for i in range(generations):
             p = evolve(p, target, retain, random_select, mutate)
             fitness_history.append(grade(p, target))
-            #stop the algorithm if suitable solution has been found (below 0.5% variance deemed acceptable)
-            suitable_solution = 0
-            #if grade(p, target) < suitable_solution:
-                #iterations_needed = i
-                #performance = performance + 1
-                #break
-            for indv in p:
-                if fitness(indv,target) == suitable_solution:
+            #stop the algorithm if suitable solution has been found
+            #individual solution fitness function termination
+            if termination_function == 1:
+                suitable_solution = 0
+                for indv in p:
+                    if fitness(indv,target) == suitable_solution:
+                        iterations_needed = i
+                        solution_found = 1
+                        solution = indv
+                    else:
+                        solution_found = 0
+            #population average fitness function termination           
+            if termination_function == 2:
+                suitable_solution = 1
+                if grade(p, target) < suitable_solution:
                     iterations_needed = i
                     solution_found = 1
-                    solution = indv
+                    performance = performance + 1
+                    lowest_indv_fitness = 1000000 #arbitrary high
+                    for indv in p:
+                        if fitness(indv,target) < lowest_indv_fitness:
+                            solution = indv
+                    break
                 else:
                     solution_found = 0
 
@@ -190,6 +209,8 @@ i_min = -50
 i_max = 50
 generations = 100
 runs_to_average = int(input("Enter number of runs to find average fitness from: "))
+eletism_status = input("Do you want to use Eletism? Y/N: ")
+termination_function = int(input("Select termination function: Individual (1) or Population (2): "))
 show_generation_fitness_graph = input("Do you want Generational Fitness Graphs for every run? Y/N: ")
 show_average_fitness_variance_graph = input("Do you want to show fitness variance graphs? Y/N: ")
 show_average_iterations_needed_graph = input("Do you want to show iterations variance graphs? Y/N: ")

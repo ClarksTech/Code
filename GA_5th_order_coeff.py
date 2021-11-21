@@ -4,7 +4,6 @@ from random import randint, random
 from operator import add
 import matplotlib.pyplot as plt
 import functools
-import time
 import numpy as np
 import math
 
@@ -31,15 +30,53 @@ def grade(pop, target):
 
 #evolve the population
 def evolve(pop, target, retain, random_select, mutate):
-    graded = [(fitness(x, target), x) for x in pop]
-    graded = [x[1] for x in sorted(graded)]
-    retain_length = int(len(graded)*retain)
-    #decide if using elitism or not
-    if eletism_status == "Y":
-        parents = graded[2:(retain_length-2)]   # 2 top kept out of mutations and crossover elitism
-    else:
-        parents = graded[:(retain_length)]      # no eletism
     
+    #ranked selection
+    if selection_method == 1:
+        graded = [(fitness(x, target), x) for x in pop]
+        graded = [x[1] for x in sorted(graded)]
+        retain_length = int(len(graded)*retain)
+        #decide if using elitism or not
+        if eletism_status == "Y":
+            parents = graded[2:(retain_length)]   # 2 top kept out of mutations and crossover elitism
+        else:
+            parents = graded[:(retain_length)]      # no eletism
+    
+    #roulette selection
+    if selection_method == 2:
+        #population fitness
+        population_fitness = sum([fitness(x, target) for x in pop])
+        #chromosone probability
+        chromosone_prob = [fitness(x, target)/population_fitness for x in pop]
+       
+       #normalise
+        norm_chromosone_prob = []
+        max_prob = max(chromosone_prob)
+        min_prob = min(chromosone_prob)
+        for x in range(len(chromosone_prob)):
+            norm_chromosone_prob.append((chromosone_prob[x]-min_prob)/(max_prob - min_prob))
+       
+        #convert prob for minaturization
+        norm_chromosone_prob = 1 - np.array(norm_chromosone_prob)
+
+        #make probabilities sum to 1
+        final_chromosone_probs = []
+        for x in range(len(norm_chromosone_prob)):
+            final_chromosone_probs.append(norm_chromosone_prob[x]/sum(norm_chromosone_prob))
+        
+        #create parents population
+        retain_length = int(len(final_chromosone_probs)*retain)
+        graded = []
+        for x in range(retain_length):
+            temp = np.arange(0,len(pop),1) # 1D size of pop as random choice numpy only takes 1D
+            roulette_position_selected = np.random.choice(temp, p=final_chromosone_probs)
+            graded.append(pop[roulette_position_selected])
+        #decide if using elitism or not
+        if eletism_status == "Y":
+            parents = graded[2:(retain_length)]   # 2 top kept out of mutations and crossover elitism
+        else:
+            parents = graded[:(retain_length)]      # no eletism
+
     #randomly add other individuals to promote genetic diversity
     for individual in graded[retain_length:]:
         if random_select > random():
@@ -52,7 +89,11 @@ def evolve(pop, target, retain, random_select, mutate):
             individual[pos_to_mutate] = randint(-50, 50) #in range
     #crossover parents to create children
     parents_length = len(parents)
-    desired_length = len(pop)-parents_length
+    #children produced depends on if elite are kept
+    if eletism_status == "Y": 
+        desired_length = len(pop)-(parents_length+2)
+    else:
+        desired_length = len(pop)-(parents_length)
     children = []
     while len(children) < desired_length:
         male = randint(0, parents_length-1)
@@ -209,7 +250,8 @@ i_min = -50
 i_max = 50
 generations = 100
 runs_to_average = int(input("Enter number of runs to find average fitness from: "))
-eletism_status = input("Do you want to use Eletism? Y/N: ")
+eletism_status = input("Do you want to use Elitism? Y/N: ")
+selection_method = int(input("Select selection function: Ranked (1) or Roulette (2): "))
 termination_function = int(input("Select termination function: Individual (1) or Population (2): "))
 show_generation_fitness_graph = input("Do you want Generational Fitness Graphs for every run? Y/N: ")
 show_average_fitness_variance_graph = input("Do you want to show fitness variance graphs? Y/N: ")

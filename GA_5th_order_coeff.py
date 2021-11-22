@@ -48,22 +48,18 @@ def evolve(pop, target, retain, random_select, mutate):
         population_fitness = sum([fitness(x, target) for x in pop])
         #chromosone probability
         chromosone_prob = [fitness(x, target)/population_fitness for x in pop]
-       
        #normalise
         norm_chromosone_prob = []
         max_prob = max(chromosone_prob)
         min_prob = min(chromosone_prob)
         for x in range(len(chromosone_prob)):
             norm_chromosone_prob.append((chromosone_prob[x]-min_prob)/(max_prob - min_prob))
-       
         #convert prob for minaturization
         norm_chromosone_prob = 1 - np.array(norm_chromosone_prob)
-
         #make probabilities sum to 1
         final_chromosone_probs = []
         for x in range(len(norm_chromosone_prob)):
             final_chromosone_probs.append(norm_chromosone_prob[x]/sum(norm_chromosone_prob))
-        
         #create parents population
         retain_length = int(len(final_chromosone_probs)*retain)
         graded = []
@@ -81,12 +77,14 @@ def evolve(pop, target, retain, random_select, mutate):
     for individual in graded[retain_length:]:
         if random_select > random():
             parents.append(individual)
+
     #mutate some individuals
     for individual in parents:
         if mutate > random():
             pos_to_mutate = randint(0, len(individual)-1)
             #mutation is non-ideal as restricts range of possible values
             individual[pos_to_mutate] = randint(-50, 50) #in range
+
     #crossover parents to create children
     parents_length = len(parents)
     #children produced depends on if elite are kept
@@ -101,9 +99,37 @@ def evolve(pop, target, retain, random_select, mutate):
         if male != female:
             male = parents[male]
             female = parents[female]
-            half = len(male)//2
-            child = male[:half]+female[half:]
-            children.append(child)
+            #1-point crossover at random crossover point
+            if crossover_method == 1:
+                #half = len(male)//2
+                crossover_point = randint(1,(len(male)-1))
+                child = male[:crossover_point]+female[crossover_point:]
+                children.append(child)
+            #2-point crossover at random crossover points
+            if crossover_method == 2:
+                #half = len(male)//2
+                crossover_point_1 = randint(1,(len(male)-1))
+                crossover_point_2 = randint(1,(len(male)-1))
+                #determine which crossover point comes first and add genes to child accordingly
+                if (crossover_point_1 < crossover_point_2) & (crossover_point_1 != crossover_point_2):
+                    child = male[:crossover_point_1]+female[crossover_point_1:crossover_point_2]+male[crossover_point_2:]
+                    children.append(child)
+                if (crossover_point_1 > crossover_point_2) & (crossover_point_1 != crossover_point_2):
+                    child = male[:crossover_point_2]+female[crossover_point_2:crossover_point_1]+male[crossover_point_1:]
+                    children.append(child)
+            #uniform crossover
+            if crossover_method == 3:
+                #generate mask
+                unifrom_crossover_mask = np.random.choice([0,1], size=len(male))
+                #make child gene from male or female parent depending on mask bit
+                child = []
+                for x in range(len(unifrom_crossover_mask)):
+                    if unifrom_crossover_mask[x] == 0:
+                        child.append(male[x])
+                    if unifrom_crossover_mask[x] == 1:
+                        child.append(female[x])
+                children.append(child)
+
     #if eleitism used add back in most elite
     if eletism_status == "Y":        
         parents.append(graded[0])#add back in most elite
@@ -252,6 +278,7 @@ generations = 100
 runs_to_average = int(input("Enter number of runs to find average fitness from: "))
 eletism_status = input("Do you want to use Elitism? Y/N: ")
 selection_method = int(input("Select selection function: Ranked (1) or Roulette (2): "))
+crossover_method = int(input("Select crossover function: 1-point (1) or 2-point (2) or uniform mask (3): "))
 termination_function = int(input("Select termination function: Individual (1) or Population (2): "))
 show_generation_fitness_graph = input("Do you want Generational Fitness Graphs for every run? Y/N: ")
 show_average_fitness_variance_graph = input("Do you want to show fitness variance graphs? Y/N: ")

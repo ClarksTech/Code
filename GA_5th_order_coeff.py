@@ -1,7 +1,7 @@
 #import required libraries
 
 from random import randint, random
-from operator import add
+from operator import add, pos
 import matplotlib.pyplot as plt
 import functools
 import numpy as np
@@ -81,9 +81,16 @@ def evolve(pop, target, retain, random_select, mutate):
     #mutate some individuals
     for individual in parents:
         if mutate > random():
-            pos_to_mutate = randint(0, len(individual)-1)
-            #mutation is non-ideal as restricts range of possible values
-            individual[pos_to_mutate] = randint(-50, 50) #in range
+            #repete 1 - 3 times to mutate 1 - 3 genes depending on method chosen by user
+            mutation_bit_hist = []
+            for x in range(mutation_method):
+                pos_to_mutate = randint(0, len(individual)-1)
+                #check not same gene being mutated multiple times
+                while pos_to_mutate in mutation_bit_hist:
+                   pos_to_mutate = randint(0, len(individual)-1) 
+                mutation_bit_hist.append(pos_to_mutate)
+                #mutation is non-ideal as restricts range of possible values
+                individual[pos_to_mutate] = randint(-50, 50) #in range
 
     #crossover parents to create children
     parents_length = len(parents)
@@ -279,6 +286,7 @@ runs_to_average = int(input("Enter number of runs to find average fitness from: 
 eletism_status = input("Do you want to use Elitism? Y/N: ")
 selection_method = int(input("Select selection function: Ranked (1) or Roulette (2): "))
 crossover_method = int(input("Select crossover function: 1-point (1) or 2-point (2) or uniform mask (3): "))
+mutation_method = int(input("Select mutation function: 1-bit (1) or 2-bit (2) or 3-bit (3): "))
 termination_function = int(input("Select termination function: Individual (1) or Population (2): "))
 show_generation_fitness_graph = input("Do you want Generational Fitness Graphs for every run? Y/N: ")
 show_average_fitness_variance_graph = input("Do you want to show fitness variance graphs? Y/N: ")

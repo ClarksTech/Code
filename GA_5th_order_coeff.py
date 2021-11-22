@@ -17,11 +17,28 @@ def population(count, length, min, max):
 
 #determine fitness of individual
 def fitness(individual, target):
-    delta = np.subtract(target, individual)
-    delta2 = np.square(delta)
-    ave = np.average(delta2)
-    dfitness = math.sqrt(ave)
+    if fitness_function == 1:
+        #RMS error between individual and target
+        delta = np.subtract(target, individual)
+        delta2 = np.square(delta)
+        ave = np.average(delta2)
+        dfitness = math.sqrt(ave)
+
+    if fitness_function == 2:
+        #difference between 100 points of polynomial
+        target_y = []
+        individual_y = []
+        for x in range(1, 100, 1):
+            target_y.append(target[5] + target[4] * pow(x, 1) + target[3]  * pow(x, 2) + target[2] * pow(x,3) + target[1] * pow(x,4) + target[0] * pow(x,5))
+            individual_y.append(individual[5] + individual[4] * pow(x, 1) + individual[3]  * pow(x, 2) + individual[2] * pow(x,3) + individual[1] * pow(x,4) + individual[0] * pow(x,5))
+        #RMS error between 100 individual and target X,Y coordinates
+        delta = np.subtract(target, individual)
+        delta2 = np.square(delta)
+        ave = np.average(delta2)
+        dfitness = math.sqrt(ave)
+
     return dfitness
+
 
 #find average fitness of population
 def grade(pop, target):
@@ -287,6 +304,7 @@ eletism_status = input("Do you want to use Elitism? Y/N: ")
 selection_method = int(input("Select selection function: Ranked (1) or Roulette (2): "))
 crossover_method = int(input("Select crossover function: 1-point (1) or 2-point (2) or uniform mask (3): "))
 mutation_method = int(input("Select mutation function: 1-bit (1) or 2-bit (2) or 3-bit (3): "))
+fitness_function = int(input("Select fitness function: RMS between chromosone and target (1) or RMS between 100 points of individual polynomial and target (2): "))
 termination_function = int(input("Select termination function: Individual (1) or Population (2): "))
 show_generation_fitness_graph = input("Do you want Generational Fitness Graphs for every run? Y/N: ")
 show_average_fitness_variance_graph = input("Do you want to show fitness variance graphs? Y/N: ")

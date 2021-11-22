@@ -4,7 +4,6 @@ from random import randint, random
 from operator import add
 import matplotlib.pyplot as plt
 import functools
-import time
 import numpy as np
 
 #Create a member of the population

@@ -47,17 +47,18 @@ def grade(pop, target):
 
 #evolve the population
 def evolve(pop, target, retain, random_select, mutate):
-    
+    elite = []
     #ranked selection
     if selection_method == 1:
         graded = [(fitness(x, target), x) for x in pop]
         graded = [x[1] for x in sorted(graded)]
         retain_length = int(len(graded)*retain)
+        parents = graded[:(retain_length)]      
         #decide if using elitism or not
         if eletism_status == "Y":
-            parents = graded[2:(retain_length)]   # 2 top kept out of mutations and crossover elitism
-        else:
-            parents = graded[:(retain_length)]      # no eletism
+            # 2 top kept out of mutations and crossover elitism for addition to next generation
+            elite.append(graded[0])
+            elite.append(graded[1])
     
     #roulette selection
     if selection_method == 2:
@@ -156,8 +157,8 @@ def evolve(pop, target, retain, random_select, mutate):
 
     #if eleitism used add back in most elite
     if eletism_status == "Y":        
-        parents.append(graded[0])#add back in most elite
-        parents.append(graded[1])#add back in 2nd most elite
+        parents.append(elite[0])#add back in most elite
+        parents.append(elite[1])#add back in 2nd most elite
     parents.extend(children)
     return parents
 
@@ -268,15 +269,15 @@ def sweep_parameter(p_count, retain, random_select, mutate):
 #function to plot affects of sweep on number of itterations to find solution
 def plot_swept_param(swept, swept_history):
     x = np.array(swept_history)
-    y = np.array(average_fitness_history)
+    y = np.array(average_iteration_history)
     theta = np.polyfit(x, y, 3)
     print(f'The Parameters of the curve: {theta}')
     y_line = theta[3] + theta[2] * pow(x, 1) + theta[1]  * pow(x, 2) +theta[0] * pow(x,3)
 
-    title = "Affect of " + swept + " on average fitness"
+    title = "Affect of " + swept + " on how quickly solution is found"
     plt.title(title)
     plt.xlabel(swept)
-    plt.ylabel('Average fitness')
+    plt.ylabel('Average Iterations to find solution')
     plt.scatter(x,y)
     plt.plot(x, y_line, 'r')
     plt.show()
@@ -330,12 +331,12 @@ if input("Sweep population? Y/N: ") == "Y":
     p_count_history = []
     average_iteration_history = []
     average_fitness_history = []
-    retain=0.4
+    retain=0.2
     random_select=0.05
     mutate=0.01
 
     #sweep population
-    for p_count in range(1000, 7000, 1000):
+    for p_count in range(1000, 8000, 1000):
         p_count_history.append(p_count)
 
         sweep_parameter(p_count, retain, random_select, mutate)

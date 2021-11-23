@@ -138,10 +138,14 @@ def evolve(pop, target, retain, random_select, mutate):
                 #determine which crossover point comes first and add genes to child accordingly
                 if (crossover_point_1 < crossover_point_2) & (crossover_point_1 != crossover_point_2):
                     child = male[:crossover_point_1]+female[crossover_point_1:crossover_point_2]+male[crossover_point_2:]
+                    child2 = female[:crossover_point_1]+male[crossover_point_1:crossover_point_2]+female[crossover_point_2:]
                     children.append(child)
+                    children.append(child2)
                 if (crossover_point_1 > crossover_point_2) & (crossover_point_1 != crossover_point_2):
                     child = male[:crossover_point_2]+female[crossover_point_2:crossover_point_1]+male[crossover_point_1:]
+                    child2 = female[:crossover_point_2]+male[crossover_point_2:crossover_point_1]+female[crossover_point_1:]
                     children.append(child)
+                    children.append(child2)
             #uniform crossover
             if crossover_method == 3:
                 #generate mask
@@ -315,7 +319,7 @@ show_average_iterations_needed_graph = input("Do you want to show iterations var
 #run code for optimal solution (least number of iterations to converge on solution)
 if input("Least Iterations Solution? Y/N: ") == "Y":
 
-    retain=0.2
+    retain=0.1 #0.2
     random_select=0.05
     mutate=0.03
     p_count = 5000
@@ -376,7 +380,7 @@ if input("Sweep crossover probability? Y/N: ") == "Y":
     p_count = 5000
 
     #sweep crossover probability
-    for retain in np.arange(0.1, 0.4, 0.025):
+    for retain in np.arange(0.1, 0.9, 0.1):
         crossover_history.append(retain)
 
         sweep_parameter(p_count, retain, random_select, mutate)

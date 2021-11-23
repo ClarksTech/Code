@@ -108,7 +108,7 @@ def evolve(pop, target, retain, random_select, mutate):
                    pos_to_mutate = randint(0, len(individual)-1) 
                 mutation_bit_hist.append(pos_to_mutate)
                 #mutation is non-ideal as restricts range of possible values
-                individual[pos_to_mutate] = randint(-50, 50) #in range
+                individual[pos_to_mutate] = randint(i_min, i_max) #in range
 
     #crossover parents to create children
     parents_length = len(parents)

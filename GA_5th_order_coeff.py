@@ -298,6 +298,7 @@ def plot_swept_param(swept, swept_history):
     #random_select=0.05
     #mutate=0.01
 
+#get user input to configure the GA for testing
 #initialise global variable and get user input
 target = [25, 18, 31, -14, 7, -19]
 i_length = 6
@@ -314,6 +315,7 @@ termination_function = int(input("Select termination function: Individual (1) or
 show_generation_fitness_graph = input("Do you want Generational Fitness Graphs for every run? Y/N: ")
 show_average_fitness_variance_graph = input("Do you want to show fitness variance graphs? Y/N: ")
 show_average_iterations_needed_graph = input("Do you want to show iterations variance graphs? Y/N: ")
+
 
 
 #run code for optimal solution (least number of iterations to converge on solution)
